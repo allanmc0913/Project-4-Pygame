@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-
+#referenced from Snake tutorial I followed (https://pythonspot.com/en/snake-with-pygame/).  It gave
 import pygame
 import sys
 import time
@@ -7,35 +6,29 @@ import random
 
 from pygame.locals import *
 
-FPS = 20
-#launch pygame
-pygame.init()
+class Snake:
+	FPS = 5
+	x_pos = 10
+	y_pos = 10
 
-#create an object to track time
-fpsClock=pygame.time.Clock()
+	#member function to go right.  later game class will invoke this functions through event handling.
+	def goright(self):
+		self.x_pos = self.x_pos + self.FPS
 
-SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
-surface = pygame.Surface(screen.get_size())
-surface = surface.convert()
-surface.fill((255,255,255))
-clock = pygame.time.Clock()
+	def goleft(self):
+		self.x_pos = self.x_pos - self.FPS
+
+	def goup(self):
+		self.y_pos = self.y_pos + self.FPS
+
+	def godown(self):
+		self.y_pos = self.y_pos - self.FPS
+class Game:
+	SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
+
+pygame.event.pump()
+keys = pygame.key.get_pressed() 
+ 
 
 
-pygame.key.set_repeat(1, 40)
 
-GRIDSIZE=10
-GRID_WIDTH = SCREEN_WIDTH / GRIDSIZE
-GRID_HEIGHT = SCREEN_HEIGHT / GRIDSIZE
-
-#x and y values for keyboard
-UP    = (0, -1)
-DOWN  = (0, 1)
-LEFT  = (-1, 0)
-RIGHT = (1, 0)
-    
-screen.blit(surface, (0,0))
-
-class Food(object):
-	def __init__(self):
-		self.color(10,0,0)
