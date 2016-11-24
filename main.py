@@ -25,35 +25,51 @@ class Snake:
 	def godown(self):
 		self.y_pos = self.y_pos - self.FPS
 class Game:
-	SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
-
-	#start events
-	
+	SCREEN_WIDTH = 640
+	SCREEN_HEIGHT = 480
 
 	#class has default constructor or initializer
 	def __init__(self):
-		self._running = True
+		self.running = True
 		self.screen = None
 		self.imgsurf = None
-		self.player = Player()
+		self.snake = Snake()
 
-	def setdimensions(self):
+	def display(self):
+		SCREEN_WIDTH = 640
+		SCREEN_HEIGHT = 480
 		screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-		self._running = True
+		self.running = True
 		imgsurf = pygame.image.load("Pygame_logo.bmp").convert()
 
-	def oncommand(self):
-		if event.type == QUIT:
-			self._running = False
-			pygame.quit()
-			sys.exit()
-		if self.setdimensions() == False:
-			self._running = False
-		while (self._running):
-			pygame.event.pump()
-	keys = pygame.key.get_pressed() 
- 
+	def render(self):
+		self.surface.fill((0,0,0))
+		self.surf.blit(self.imgsurf, (self.snake.x,self.snake.y))
 
+	def oncommand(self):
+		if self.display() == False:
+			self.running = False
+		while (self.running):
+			pygame.event.pump()
+			keys = pygame.key.get_pressed()
+			if event.type == QUIT:
+				self.running = False
+				pygame.quit()
+				sys.exit()
+			elif event.type == KEYDOWN:
+				if event.key == K_UP:
+					self.Snake.goup()
+				if event.key == K_DOWN:
+					self.Snake.godown()
+				if event.key == K_RIGHT:
+					self.Snake.goright()
+				if event.key == K_LEFT:
+					self.Snake.goleft()
+				if event.key == K_ESCAPE:
+					self.running = False
+if __name__ == '__main__':
+	game = Game()
+	game.oncommand()
 
 
 
