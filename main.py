@@ -1,4 +1,4 @@
-#referenced from Snake tutorial I followed (https://pythonspot.com/en/snake-with-pygame/).  It gave
+#referenced from Snake tutorial I followed (https://pythonspot.com/en/snake-with-pygame/).  It gave me 
 import pygame
 import sys
 import time
@@ -19,14 +19,15 @@ class Snake:
 	def goleft(self):
 		self.x_pos = self.x_pos - self.FPS
 
-	def goup(self):
+	def godown(self):
 		self.y_pos = self.y_pos + self.FPS
 
-	def godown(self):
+	def goup(self):
 		self.y_pos = self.y_pos - self.FPS
 class Game:
 	SCREEN_WIDTH = 640
 	SCREEN_HEIGHT = 480
+	snake = 0
 
 	#class has default constructor or initializer
 	def __init__(self):
@@ -36,66 +37,45 @@ class Game:
 		self.snake = Snake()
 
 	def display(self):
-		SCREEN_WIDTH = 640
+		SCREEN_WIDTH = 720
 		SCREEN_HEIGHT = 480
-		screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+		self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+		pygame.display.set_caption('Snake')
 		self.running = True
-		imgsurf = pygame.image.load("Pygame_logo.bmp").convert()
+		self.imgsurf = pygame.image.load("snakeblock.bmp").convert()
 
 	def render(self):
-		self.surface.fill((0,0,0))
-		self.surf.blit(self.imgsurf, (self.snake.x,self.snake.y))
+		self.screen.fill((0,0,0))
+		self.screen.blit(self.imgsurf, (self.snake.x_pos,self.snake.y_pos))
+		pygame.display.flip()
 
 	def oncommand(self):
 		if self.display() == False:
 			self.running = False
+
+		#the tutorial had a different way of event handling for keyboard. It had another class function which was unnecessary.  
 		while (self.running):
-			pygame.event.pump()
-			keys = pygame.key.get_pressed()
-			if event.type == QUIT:
-				self.running = False
-				pygame.quit()
-				sys.exit()
-			elif event.type == KEYDOWN:
-				if event.key == K_UP:
-					self.Snake.goup()
-				if event.key == K_DOWN:
-					self.Snake.godown()
-				if event.key == K_RIGHT:
-					self.Snake.goright()
-				if event.key == K_LEFT:
-					self.Snake.goleft()
-				if event.key == K_ESCAPE:
+			for event in pygame.event.get():
+				if event.type == QUIT:
 					self.running = False
+					pygame.quit()
+					sys.exit()
+				elif event.type == KEYDOWN:
+					if event.key == K_UP:
+						self.snake.goup()
+					if event.key == K_DOWN:
+						self.snake.godown()
+					if event.key == K_LEFT:
+						self.snake.goleft()
+					if event.key == K_RIGHT:
+						self.snake.goright()
+					if event.key == K_ESCAPE:
+						self.running = False
+			self.render()
+
 if __name__ == '__main__':
-	game = Game()
-	game.oncommand()
+	Game = Game()
+	Game.oncommand()
 
 
-
-
-
-
-
-
-	#for event in pygame.event.get():
-     #       if event.type == QUIT:
-      #          pygame.quit()
-       #         sys.exit()
-        #    elif event.type == KEYDOWN:
-         #       if event.key == K_UP:
-          #          self.player.goup()
-           #     elif event.key == K_DOWN:
-            #  		self.player.godown()
-             #   elif event.key == K_LEFT:
-              #      self.player.goleft()
-               # elif event.key == K_RIGHT:
-                #    self.player.goright()
-
-
-#import pygame
-
-#screen = pygame.display.set_mode((640,400))
-#while True:
-#pass
 
