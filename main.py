@@ -12,6 +12,7 @@ import random
 from pygame.locals import *
 #initialize all pygame modules
 pygame.init()
+pygame.mixer.music.load("sail.wav")
 class Snake:
     #how large each step is
 	FPS = 20
@@ -71,10 +72,11 @@ class Enemy:
 		screen.blit(image, (self.x_pos, self.y_pos))
 	
 class Game:
+	pygame.mixer.music.play(-1)
 	enemy = 0
 	snake = 0
-	SCREEN_WIDTH = 720
-	SCREEN_HEIGHT = 480
+	SCREEN_WIDTH = 1080
+	SCREEN_HEIGHT = 720
 
 	#class has default constructor or initializer
 	def __init__(self):
@@ -84,6 +86,7 @@ class Game:
 		self.enemysurf = None
 		self.enemy = Enemy (5,5)
 		self.snake = Snake(3)
+
 
 	
 	def display(self):
@@ -100,10 +103,9 @@ class Game:
 		#using pygame.display.flip() updates the entire display
 		pygame.display.flip()
 
+
 	def snakepartsupdate(self):
 		self.snake.update()
-		#pass
-
 	def oncommand(self):
 		if self.display() == False:
 			self.running = False
@@ -133,10 +135,11 @@ class Game:
 			self.display()
 			#delay the snake
 			time.sleep(0.05);
-
+		
 if __name__ == '__main__':
 	Game = Game()
 	Game.oncommand()
+
 
 
 
