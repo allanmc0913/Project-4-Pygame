@@ -13,12 +13,13 @@ from pygame.locals import *
 #initialize all pygame modules
 pygame.init()
 class Snake:
-	FPS = 32
+    #how large each step is
+	FPS = 20
 	x_pos = list()
 	y_pos = list()
 	direction = 0
-	length = 3
-	updateCountMax = 2
+	length = 0
+	updateCountMax = 3
 	updateCount = 0
 
 	def __init__(self, length):
@@ -33,7 +34,6 @@ class Snake:
 		self.updateCount += 1
 		if self.updateCount > self.updateCountMax:
 			#update positions of snake parts that aren't the head
-			#for i in 2, 1
 			for i in range(self.length - 1, 0, -1):
 				self.x_pos[i] = self.x_pos[i-1]
 				self.y_pos[i] = self.y_pos[i-1]
@@ -57,10 +57,21 @@ class Snake:
 		self.direction = 2
 	def godown(self):
 		self.direction = 3
-	def draw(self, surf, img):
+	def draw(self, screen, image):
 		for i in range(0, self.length):
-			surface.blit(image, (self.x_pos[i], self.y_pos[i]))
+			screen.blit(image, (self.x_pos[i], self.y_pos[i]))
+class Enemy:
+	x_pos = 0
+	y_pos = 0
+	FPS = 44
+	def __init__(self, x_pos, y_pos):
+		self.x_pos = x_pos * self.FPS
+		self.y_pos = y_pos * self.FPS
+	def draw (self, screen, image):
+		screen.blit(image, (self.x_pos, self.y_pos))
+	
 class Game:
+	enemy = 0
 	snake = 0
 	SCREEN_WIDTH = 720
 	SCREEN_HEIGHT = 480
@@ -70,22 +81,28 @@ class Game:
 		self.running = True
 		self.screen = None
 		self.imgsurf = None
-		self.snake = Snake(10)
+		self.enemysurf = None
+		self.enemy = Enemy (5,5)
+		self.snake = Snake(3)
 
 	
 	def display(self):
-		pygame.init()
-		SCREEN_WIDTH = 720
-		SCREEN_HEIGHT = 480
 		self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
 		pygame.display.set_caption('Snake')
 		self.running = True
 		self.imgsurf = pygame.image.load("snakeblock.bmp").convert()
-
-	def render(self):
+		self.enemysurf = pygame.image.load("enemy.bmp").convert()
+	
 		self.screen.fill((0,0,0))
-		self.screen.blit(self.imgsurf, (self.snake.x_pos,self.snake.y_pos))
+		self.snake.draw(self.screen, self.imgsurf)
+		self.enemy.draw(self.screen, self.enemysurf)
+		#the in-class handout suggested using pygame.display.update() but apparently it only updates a section of the display
+		#using pygame.display.flip() updates the entire display
 		pygame.display.flip()
+
+	def snakepartsupdate(self):
+		self.snake.update()
+		#pass
 
 	def oncommand(self):
 		if self.display() == False:
@@ -112,9 +129,10 @@ class Game:
 						self.snake.goright()
 					if event.key == K_ESCAPE:
 						self.running = False
-			self.render()
+			self.snakepartsupdate()
+			self.display()
 			#delay the snake
-			time.sleep(0.1);
+			time.sleep(0.05);
 
 if __name__ == '__main__':
 	Game = Game()
