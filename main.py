@@ -14,47 +14,63 @@ from pygame.locals import *
 pygame.init()
 class Snake:
 	FPS = 32
-	x_pos = 0
-	y_pos = 0
+	x_pos = list()
+	y_pos = list()
 	direction = 0
+	length = 3
+	updateCountMax = 2
+	updateCount = 0
+
+	def __init__(self, length):
+		self.length = length
+		for i in range(0, length):
+			self.x_pos.append(0)
+			self.y_pos.append(0)
+			#000
+			#000
+
+	def update(self):
+		self.updateCount += 1
+		if self.updateCount > self.updateCountMax:
+			#update positions of snake parts that aren't the head
+			#for i in 2, 1
+			for i in range(self.length - 1, 0, -1):
+				self.x_pos[i] = self.x_pos[i-1]
+				self.y_pos[i] = self.y_pos[i-1]
+
+			#update the snake's head position
+			if self.direction == 0:
+				self.x_pos[0] = self.x_pos[0] + self.FPS
+			if self.direction == 1:
+				self.x_pos[0] = self.x_pos[0] - self.FPS
+			if self.direction == 2:
+				self.y_pos[0] = self.y_pos[0] - self.FPS
+			if self.direction == 3:
+				self.y_pos[0] = self.y_pos[0] + self.FPS
+			self.updateCount = 0
 
 	def goright(self):
 		self.direction = 0
-		# if self.direction == 0:
-		# 	self.x_pos = self.x_pos + self.FPS
 	def goleft(self):
 		self.direction = 1
-		# if self.direction == 1:
-	 # 		self.x_pos = self.x_pos - self.FPS
 	def goup(self):
 		self.direction = 2
-		# if self.direction == 2:
-		# 	self.y_pos = self.y_pos - self.FPS
 	def godown(self):
 		self.direction = 3
-		# if self.direction == 3:
-	 # 		self.y_pos = self.y_pos + self.FPS
-	
-	def update(self):
-		if self.direction == 0:
-			self.x_pos = self.x_pos + self.FPS
-		if self.direction == 1:
-			self.x_pos = self.x_pos - self.FPS
-		if self.direction == 2:
-			self.y_pos = self.y_pos - self.FPS
-		if self.direction == 3:
-			self.y_pos = self.y_pos + self.FPS
+	def draw(self, surf, img):
+		for i in range(0, self.length):
+			surface.blit(image, (self.x_pos[i], self.y_pos[i]))
 class Game:
-	SCREEN_WIDTH = 800
-	SCREEN_HEIGHT = 600
 	snake = 0
+	SCREEN_WIDTH = 720
+	SCREEN_HEIGHT = 480
 
 	#class has default constructor or initializer
 	def __init__(self):
 		self.running = True
 		self.screen = None
 		self.imgsurf = None
-		self.snake = Snake()
+		self.snake = Snake(10)
 
 	
 	def display(self):
@@ -97,7 +113,8 @@ class Game:
 					if event.key == K_ESCAPE:
 						self.running = False
 			self.render()
-			time.sleep(100.0/1000.0);
+			#delay the snake
+			time.sleep(0.1);
 
 if __name__ == '__main__':
 	Game = Game()
