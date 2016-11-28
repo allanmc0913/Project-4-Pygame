@@ -7,47 +7,50 @@
 import pygame
 import sys
 import time
-import random
+from random import randint
 
 from pygame.locals import *
 #initialize all pygame modules
 pygame.init()
+#referenced (https://www.youtube.com/watch?v=8sCQQlqeOKY) for help with sounds/music
 pygame.mixer.music.load("sail.wav")
+eat_sound = pygame.mixer.Sound("eating.wav")
+
 class Snake:
     #how large each step is
-	FPS = 20
-	x_pos = list()
-	y_pos = list()
+	FPS = 44
+	x = [0]
+	y = [0]
 	direction = 0
 	length = 0
-	updateCountMax = 3
+	updateCountMax = 2
 	updateCount = 0
 
 	def __init__(self, length):
 		self.length = length
-		for i in range(0, length):
-			self.x_pos.append(0)
-			self.y_pos.append(0)
-			#000
-			#000
+		for i in range(0, 2000):
+			self.x.append(-100)
+			self.y.append(-100)
+		self.x[1] = 44
+		self.x[2] = 88
 
 	def update(self):
 		self.updateCount += 1
 		if self.updateCount > self.updateCountMax:
 			#update positions of snake parts that aren't the head
 			for i in range(self.length - 1, 0, -1):
-				self.x_pos[i] = self.x_pos[i-1]
-				self.y_pos[i] = self.y_pos[i-1]
+				self.x[i] = self.x[i-1]
+				self.y[i] = self.y[i-1]
 
 			#update the snake's head position
 			if self.direction == 0:
-				self.x_pos[0] = self.x_pos[0] + self.FPS
+				self.x[0] = self.x[0] + self.FPS
 			if self.direction == 1:
-				self.x_pos[0] = self.x_pos[0] - self.FPS
+				self.x[0] = self.x[0] - self.FPS
 			if self.direction == 2:
-				self.y_pos[0] = self.y_pos[0] - self.FPS
+				self.y[0] = self.y[0] - self.FPS
 			if self.direction == 3:
-				self.y_pos[0] = self.y_pos[0] + self.FPS
+				self.y[0] = self.y[0] + self.FPS
 			self.updateCount = 0
 
 	def goright(self):
@@ -60,23 +63,32 @@ class Snake:
 		self.direction = 3
 	def draw(self, screen, image):
 		for i in range(0, self.length):
-			screen.blit(image, (self.x_pos[i], self.y_pos[i]))
+			screen.blit(image, (self.x[i], self.y[i]))
 class Enemy:
-	x_pos = 0
-	y_pos = 0
+	x = 0
+	y = 0
 	FPS = 44
-	def __init__(self, x_pos, y_pos):
-		self.x_pos = x_pos * self.FPS
-		self.y_pos = y_pos * self.FPS
+	def __init__(self, x, y):
+		self.x = x * self.FPS
+		self.y = y * self.FPS
 	def draw (self, screen, image):
-		screen.blit(image, (self.x_pos, self.y_pos))
-	
+		screen.blit(image, (self.x, self.y))
+
+class Collision:
+	def collide(self,x1,y1,x2,y2,blocksize):
+		if x1 >= x2:
+			if x1 <= x2 + blocksize:
+				if y1 >= y2:
+					if y1 <= y2 + blocksize:
+						return True
+
+		return False
 class Game:
 	pygame.mixer.music.play(-1)
 	enemy = 0
 	snake = 0
-	SCREEN_WIDTH = 1080
-	SCREEN_HEIGHT = 720
+	SCREEN_WIDTH = 800
+	SCREEN_HEIGHT = 600
 
 	#class has default constructor or initializer
 	def __init__(self):
@@ -84,11 +96,10 @@ class Game:
 		self.screen = None
 		self.imgsurf = None
 		self.enemysurf = None
-		self.enemy = Enemy (5,5)
-		self.snake = Snake(3)
+		self.collision = Collision()
+		self.enemy = Enemy((randint(1,15)), (randint(1,15)))
+		self.snake = Snake(1)
 
-
-	
 	def display(self):
 		self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
 		pygame.display.set_caption('Snake')
@@ -106,6 +117,20 @@ class Game:
 
 	def snakepartsupdate(self):
 		self.snake.update()
+		for i in range(0, self.snake.length):
+			if self.collision.collide(self.enemy.x, self.enemy.y, self.snake.x[i], self.snake.y[i], 44):
+				self.enemy.x = randint(2, 700)
+				self.enemy.y = randint(2, 600) 
+				self.snake.length = self.snake.length + 1
+				#during collision, play slurping sound
+				pygame.mixer.Sound.play(eat_sound)
+		for i in range(2, self.snake.length):
+			if self.collision.collide(self.snake.x[0], self.snake.y[0], self.snake.x[i], self.snake.y[i], 40):
+				print ("You lost! You collided")
+				pygame.mixer.music.stop()
+				exit(0)
+	def on_cleanup(self):
+		pygame.quit()
 	def oncommand(self):
 		if self.display() == False:
 			self.running = False
@@ -135,6 +160,7 @@ class Game:
 			self.display()
 			#delay the snake
 			time.sleep(0.05);
+		self.on_cleanup()
 		
 if __name__ == '__main__':
 	Game = Game()
