@@ -15,6 +15,7 @@ pygame.init()
 #referenced (https://www.youtube.com/watch?v=8sCQQlqeOKY) for help with sounds/music
 pygame.mixer.music.load("sail.wav")
 eat_sound = pygame.mixer.Sound("eating.wav")
+snake_hiss = pygame.mixer.Sound("snakehiss.wav")
 
 class Snake:
     #how large each step is
@@ -30,8 +31,9 @@ class Snake:
 	def __init__(self, length):
 		self.length = length
 		for i in range(0, 2000):
-			self.x.append(0)
-			self.y.append(0)
+			self.x.append(-1500)
+			self.y.append(-1500)
+		#initial positions of snake
 		#self.x[1] = 44
 		#self.x[2] = 88
 
@@ -144,6 +146,8 @@ class Game:
 		#using pygame.display.flip() updates the entire display
 		pygame.display.flip()
 
+		
+
 	#new positions of snake head and snake elements are updated.  Check for collisions
 	def snakepartsupdate(self):
 		self.snake.update()
@@ -157,16 +161,17 @@ class Game:
 				#during collision, play slurping sound
 				pygame.mixer.Sound.play(eat_sound)
 				self.collided = True
+				self.enemysnake.x = randint(2,500)
+				self.enemysnake.y = randint(2,500)
 
 		
 			elif self.collision.collide(self.enemysnake.x, self.enemysnake.y, self.snake.x[i], self.snake.y[i], 44):
-				self.enemysnake.x = randint(2, 500)
-				self.enemysnake.y = randint(2, 500)
-				self.snake.length = self.snake.length - 1
+				self.snake.length = self.snake.length - self.snake.length
 				self.collided = True
 
 				if self.snake.length == 0:
-					print ("No life left!  Game Over!")
+					pygame.mixer.Sound.play(snake_hiss)
+					print ("You were in the vicinity of an enemy snake!  It attacked you!  You are dead!")
 					pygame.mixer.music.stop()
 					exit(0)
 		
@@ -177,10 +182,14 @@ class Game:
 				pygame.mixer.music.stop()
 				exit(0)
 
+		# for i in range(0, self.snake.length):
+		# 	for j in range(0, 800):
+		# 		for k in range(0, 600):
+		# 			if self.collision.collide(self.snake.x[i], self.snake.y[i], j, k, 44):
+		# 				pygame.mixer.music.stop()
+		# 				print("You ran out of bounds!")
+		# 				exit(0)
 
-
-	def on_cleanup(self):
-		pygame.quit()
 
 	def oncommand(self):
 		if self.display() == False:
@@ -212,7 +221,7 @@ class Game:
 			self.display()
 			#delay the snake
 			time.sleep(0.25);
-		self.on_cleanup()
+		pygame.quit()
 		
 if __name__ == '__main__':
 	Game = Game()
