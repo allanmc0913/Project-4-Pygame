@@ -1,9 +1,9 @@
-#referenced from Snake tutorial I followed (https://pythonspot.com/en/snake-with-pygame/)
+#Referenced from Snake tutorial I followed (https://pythonspot.com/en/snake-with-pygame/)
 #It had a very step-by-step instruction where I learned the logic behind each different class and function
 #I also used the PyGame documentation to look up PyGame functions.  
-#While learning from the tutorial, I also downloaded the Github repository of another person's Snake code.  
+#While learning from the tutorial, I also downloaded the Github repository of another person's Snake code (https://github.com/ternus/pygame-examples/blob/master/snake.py)
 #Often times, I found that the Github version did things differently, so the following code is a blend of my own logic from both the tutorial and the Github version
-
+#On top of the base Snake game, I added in music/sound effects, an enemy snake class that inherits from an existing class, a 15 second timer that forces the user to eat an item
 import pygame
 import sys
 import time
@@ -20,7 +20,6 @@ hiss_sound = pygame.mixer.Sound("snakehiss.wav")
 
 
 class Snake:
-    #how large each step is
 	FPS = 44
 	#x and y positions are lists because each element is part of the snake
 	x = [150]
@@ -33,13 +32,10 @@ class Snake:
 		for i in range(0, 2000):
 			self.x.append(-1500)
 			self.y.append(-1500)
-		#initial positions of snake
-		#self.x[1] = 44
-		#self.x[2] = 88
 
+	#update method updates snake's position
 	def update(self):
-		
-		#update positions of snake parts that aren't the head
+		#update positions of snake's body
 		for i in range(self.length - 1, 0, -1):
 			self.x[i] = self.x[i-1]				
 			self.y[i] = self.y[i-1]
@@ -69,7 +65,7 @@ class Snake:
 	def godown(self):
 		self.direction = 3
 
-	#draw takes in image that is blitted/copied to another location
+	#draw takes in image.  it is then blitted/copied to another location
 	def draw(self, screen, image):
 		for i in range(0, self.length):
 			screen.blit(image, (self.x[i], self.y[i]))
@@ -78,12 +74,12 @@ class Rat:
 	y = 0
 	FPS = 35
 
-	#rat class initializer, 
+	#rat class initializer
 	def __init__(self, x, y):
 		self.x = x * self.FPS
 		self.y = y * self.FPS
 
-	#draw function takes in an image and blits/copies it to another location
+	#draw function takes in an image, then blits/copies it to another location
 	def draw (self, screen, image):
 		screen.blit(image, (self.x, self.y))
 
@@ -97,7 +93,7 @@ class EnemySnake(Rat):
 		self.x = x * self.FPS
 		self.y = y * self.FPS
 
-#collision detection class
+#collision detection class.  I could have used Sprites but I chose to use coordinate matching to detect collisions.  
 class Collision:
 	def collide(self,x1,y1,x2,y2,blocksize):
 		if x1 >= x2:
@@ -147,33 +143,41 @@ class Game:
 		self.enemysnake.draw(self.screen, self.enemysnakeimage)
 		#the in-class handout suggested using pygame.display.update() but apparently it only updates a section of the display
 		#using pygame.display.flip() updates the entire display
-		pygame.display.flip()
-
-
-
-
-
-
 
 		BLACK = (0,0,0)
 		WHITE = (255,255,255)
-		done = False
-		clock = pygame.time.Clock()
-		font = pygame.font.Font(None, 25)
-		frame_count = 1
-		frame_rate = 60
-		start_time = 20
-		total_seconds = start_time - (frame_count // frame_rate)
-		if total_seconds < 0:
-			total_seconds = 0
-		minutes = total_seconds // 60
-		seconds = total_seconds % 60
-		output_string = "Time Left: {0:02}:{1:02}".format(minutes,seconds)
+		font = pygame.font.SysFont("mspgothic", 20)
+		displaylength = str(self.snake.length)
+		output_string = "Length: " + displaylength
 		text = font.render(output_string, True, WHITE)
-		self.screen.blit(text, [250,0])
-		frame_count += 1
-		clock.tick(frame_rate)
-		pygame.display.flip()
+		self.screen.blit(text, [700,3])
+		pygame.display.update()
+
+
+
+
+
+
+
+		# BLACK = (0,0,0)
+		# WHITE = (255,255,255)
+		# done = False
+		# clock = pygame.time.Clock()
+		# font = pygame.font.Font(None, 25)
+		# frame_count = 1
+		# frame_rate = 60
+		# start_time = 20
+		# total_seconds = start_time - (frame_count // frame_rate)
+		# if total_seconds < 0:
+		# 	total_seconds = 0
+		# minutes = total_seconds // 60
+		# seconds = total_seconds % 60
+		# output_string = "Time Left: {0:02}:{1:02}".format(minutes,seconds)
+		# text = font.render(output_string, True, WHITE)
+		# self.screen.blit(text, [250,0])
+		# frame_count += 1
+		# clock.tick(frame_rate)
+		# pygame.display.flip()
 
 
 
