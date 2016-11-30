@@ -15,19 +15,19 @@ pygame.init()
 #referenced (https://www.youtube.com/watch?v=8sCQQlqeOKY) for help with sounds/music
 pygame.mixer.music.load("sail.wav")
 eat_sound = pygame.mixer.Sound("eating.wav")
-snake_hiss = pygame.mixer.Sound("snakehiss.wav")
+hiss_sound = pygame.mixer.Sound("snakehiss.wav")
+
+
 
 class Snake:
     #how large each step is
 	FPS = 44
 	#x and y positions are lists because each element is part of the snake
-	x = [0]
-	y = [0]
+	x = [150]
+	y = [150]
 	direction = 0
 	length = 0
-	#updateCountMax = 2
-	#updateCount = 0
-
+	
 	def __init__(self, length):
 		self.length = length
 		for i in range(0, 2000):
@@ -38,14 +38,13 @@ class Snake:
 		#self.x[2] = 88
 
 	def update(self):
-		#self.updateCount += 1
-		#if self.updateCount > self.updateCountMax:
-			#update positions of snake parts that aren't the head
+		
+		#update positions of snake parts that aren't the head
 		for i in range(self.length - 1, 0, -1):
 			self.x[i] = self.x[i-1]				
 			self.y[i] = self.y[i-1]
 
-			#update the snake's head position
+		#update the snake's head position
 		if self.direction == 0:
 			self.x[0] = self.x[0] + self.FPS
 		if self.direction == 1:
@@ -54,8 +53,13 @@ class Snake:
 			self.y[0] = self.y[0] - self.FPS
 		if self.direction == 3:
 			self.y[0] = self.y[0] + self.FPS
-		#self.updateCount = 0
 
+		# if self.x[0] < -1 and self.x[0] > 801 and self.y[0] < -1 and self.y[0] > 601:
+		# 	print ("Bye")
+		# 	exit(0)
+
+	
+		
 	def goright(self):
 		self.direction = 0
 	def goleft(self):
@@ -83,7 +87,7 @@ class Rat:
 	def draw (self, screen, image):
 		screen.blit(image, (self.x, self.y))
 
-#this enemy snake class inherits from the Rat class
+#this enemy snake class inherits from the Rat class.  Satisfies project requirement of class inheritance.
 class EnemySnake(Rat):
 	x = 0
 	y = 0
@@ -93,7 +97,7 @@ class EnemySnake(Rat):
 		self.x = x * self.FPS
 		self.y = y * self.FPS
 
-#collision detection
+#collision detection class
 class Collision:
 	def collide(self,x1,y1,x2,y2,blocksize):
 		if x1 >= x2:
@@ -124,7 +128,7 @@ class Game:
 		self.collision = Collision()
 		self.collided = False
 		#tutorial had a set value like Rat(5,5).  This is not ideal because the starting spot for the rat will be the same every time
-		#using randit generates random locations for the starting rat
+		#using randit generates random locations for the starting rat, enemy snake, and snake.
 		self.rat = Rat((randint(1,15)), (randint(1,15)))
 		self.snake = Snake(1)
 		self.enemysnake = EnemySnake((randint(1,10)), (randint(1,10)))
@@ -137,7 +141,6 @@ class Game:
 		self.snakeimage = pygame.image.load("snakeblock.bmp").convert()
 		self.ratimage = pygame.image.load("rat.bmp").convert()
 		self.enemysnakeimage = pygame.image.load("enemysnake.bmp").convert()
-	
 		self.screen.fill((0,0,0))
 		self.snake.draw(self.screen, self.snakeimage)
 		self.rat.draw(self.screen, self.ratimage)
@@ -146,56 +149,85 @@ class Game:
 		#using pygame.display.flip() updates the entire display
 		pygame.display.flip()
 
-		
+
+
+
+
+
+
+		BLACK = (0,0,0)
+		WHITE = (255,255,255)
+		done = False
+		clock = pygame.time.Clock()
+		font = pygame.font.Font(None, 25)
+		frame_count = 1
+		frame_rate = 60
+		start_time = 20
+		total_seconds = start_time - (frame_count // frame_rate)
+		if total_seconds < 0:
+			total_seconds = 0
+		minutes = total_seconds // 60
+		seconds = total_seconds % 60
+		output_string = "Time Left: {0:02}:{1:02}".format(minutes,seconds)
+		text = font.render(output_string, True, WHITE)
+		self.screen.blit(text, [250,0])
+		frame_count += 1
+		clock.tick(frame_rate)
+		pygame.display.flip()
+
+
 
 	#new positions of snake head and snake elements are updated.  Check for collisions
 	def snakepartsupdate(self):
 		self.snake.update()
 
-		#checks if snake collides with rat.  If so, randomize new location of rat and increase the length of the snake.
+		#checks if snake collides with rat.  If so, randomize new location of rat and enemy snake.  Also increase the length of the snake.
 		for i in range(0, self.snake.length):
 			if self.collision.collide(self.rat.x, self.rat.y, self.snake.x[i], self.snake.y[i], 44):
-				self.rat.x = randint(2, 700)
+				self.rat.x = randint(2, 500)
 				self.rat.y = randint(2, 500) 
+				self.enemysnake.x = randint(2,500)
+				self.enemysnake.y = randint(2,500)
 				self.snake.length = self.snake.length + 1
+				print ("You ran into a rat and ate it!")
 				#during collision, play slurping sound
 				pygame.mixer.Sound.play(eat_sound)
 				self.collided = True
+			
+			#check to see if snake collides with enemy snake.  If so, randomize new location of enemy snake and decrease length of snake
+			elif self.collision.collide(self.enemysnake.x, self.enemysnake.y, self.snake.x[i], self.snake.y[i], 44):
 				self.enemysnake.x = randint(2,500)
 				self.enemysnake.y = randint(2,500)
-
-		
-			elif self.collision.collide(self.enemysnake.x, self.enemysnake.y, self.snake.x[i], self.snake.y[i], 44):
-				self.snake.length = self.snake.length - self.snake.length
-				self.collided = True
-
+				self.snake.length = self.snake.length - 1
+				print ("You ran into an enemy snake! It attacked you!")
+				#if the snake length is 0, print the message, end game.
 				if self.snake.length == 0:
-					pygame.mixer.Sound.play(snake_hiss)
-					print ("You were in the vicinity of an enemy snake!  It attacked you!  You are dead!")
+					pygame.mixer.Sound.play(hiss_sound)
+					print ("Enemy snakes have attacked you! You have no life left")
 					pygame.mixer.music.stop()
 					exit(0)
 		
 		#checks to see if snake has collided with itself.  If so, stop music, stop game, and print message.
 		for i in range(2, self.snake.length):
 			if self.collision.collide(self.snake.x[0], self.snake.y[0], self.snake.x[i], self.snake.y[i], 40):
-				print ("You lost! You collided")
+				print ("You lost! You collided with yourself!")
 				pygame.mixer.music.stop()
 				exit(0)
 
-		# for i in range(0, self.snake.length):
-		# 	for j in range(0, 800):
-		# 		for k in range(0, 600):
-		# 			if self.collision.collide(self.snake.x[i], self.snake.y[i], j, k, 44):
-		# 				pygame.mixer.music.stop()
-		# 				print("You ran out of bounds!")
-		# 				exit(0)
+
+		# for j in range(0, 801):
+		# 	for k in range(0, 601):
+				
+		# 			pygame.mixer.music.stop()
+		# 			print("You ran out of bounds!")
+		# 			exit(0)
 
 
 	def oncommand(self):
+	
 		if self.display() == False:
 			self.running = False
-
-
+		
 		#the tutorial had a different way of event handling for keyboard inputs.  The tutorial code had the "if event.type == QUIT" section as a Snake class function
 		#creating another class function for it was unnecessary, so I added it under the for loop.
 		#the tutorial created a list of keyboard inputs using "pygame.event.pump()"
@@ -206,6 +238,7 @@ class Game:
 					self.running = False
 					pygame.quit()
 					sys.exit()
+
 				elif event.type == KEYDOWN:
 					if event.key == K_UP:
 						self.snake.goup()
@@ -217,6 +250,7 @@ class Game:
 						self.snake.goright()
 					if event.key == K_ESCAPE:
 						self.running = False
+			
 			self.snakepartsupdate()
 			self.display()
 			#delay the snake
@@ -226,7 +260,6 @@ class Game:
 if __name__ == '__main__':
 	Game = Game()
 	Game.oncommand()
-
 
 
 
